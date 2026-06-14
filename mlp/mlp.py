@@ -10,6 +10,7 @@ class MLP:
         self.parameters = initialize_parameters(n_x=n_x, n_h=n_h, n_y=n_y)
         self.activation = activation
 
+    # X has shape (n_x, m) where m is the number of examples
     def forward_propagation(self, X):
         W1 = self.parameters["W1"]
         b1 = self.parameters["b1"]
@@ -40,17 +41,34 @@ class MLP:
 
         return grads
 
-    def train(self, X, Y, lr=0.01, epochs=1000, loss_type="cross_entropy", print_loss=False):
+    def train(self, X, Y, lr=0.01, epochs=1000, batch_size=None, loss_type="cross_entropy", print_loss=False):
+        m = X.shape[1]
+        if batch_size is None:
+            batch_size = m
+
+        losses = []
         for epoch in range(epochs):
-            AL, caches = self.forward_propagation(X)
-            loss = compute_loss(AL, Y, loss_type=loss_type)
-            grads = self.backward_propagation(AL, Y, caches)
-            self.parameters = update_parameters(self.parameters, grads, learning_rate=lr)
+            permutation = np.random.permutation(m)
+            X_shuffled = X[:, permutation]
+            Y_shuffled = Y[:, permutation]
+
+            for i in range(0, m, batch_size):
+                end = min(i + batch_size, m)
+                X_batch = X_shuffled[:, i:end]
+                Y_batch = Y_shuffled[:, i:end]
+
+                AL, caches = self.forward_propagation(X_batch)
+                grads = self.backward_propagation(AL, Y_batch, caches)
+                self.parameters = update_parameters(self.parameters, grads, learning_rate=lr)
+
+            AL_full, _ = self.forward_propagation(X)
+            loss = compute_loss(AL_full, Y, loss_type=loss_type)
+            losses.append(loss)
 
             if print_loss and (epoch % 100 == 0 or epoch == epochs - 1):
                 print(f"Epoch {epoch + 1}/{epochs} - loss: {loss:.6f}")
 
-        return self.parameters
+        return self.parameters, losses
 
     def predict(self, X):
         AL, _ = self.forward_propagation(X)
