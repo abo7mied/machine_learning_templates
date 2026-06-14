@@ -21,12 +21,13 @@ def compute_loss(A, Y, loss_type="cross_entropy"):
 
     # Compute loss from aL and y.
     ### START OF MY CODE ###
+    epsilon = 1e-8 # small constant to avoid log(0) which can cause numerical instability
     if loss_type == "cross_entropy":
-        loss = (-1/m)*np.sum((Y * np.log(A)) + (1-Y)*np.log(1-A))
+        loss = (-1/m)*np.sum((Y * np.log(A + epsilon)) + (1-Y)*np.log(1-A + epsilon))
     elif loss_type == "mse":
         loss = (1/m)*np.sum((A - Y)**2)
     elif loss_type == "multiclass":
-        loss = (-1/m)*np.sum(Y * np.log(A))
+        loss = (-1/m)*np.sum(Y * np.log(A + epsilon))
     else:
         raise ValueError("Unsupported loss_type: " + str(loss_type))
     ### END OF MY CODE ###
