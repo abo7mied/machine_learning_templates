@@ -1,9 +1,9 @@
 import numpy as np
 
-from initialization import initialize_parameters
-from layers import linear_activation_forward, linear_activation_backward
-from losses import compute_loss
-from optimizers import update_parameters
+from .initialization import initialize_parameters
+from .layers import linear_activation_forward, linear_activation_backward
+from .losses import compute_loss
+from .optimizers import update_parameters
 
 class MLP:
     def __init__(self, n_x, n_h, n_y, activation="relu"):

@@ -3,7 +3,7 @@
 # LINES INDICATING MY OWNERSHIP, ASSUME THE CODE IS MY INSTRUCTOR'S.
 
 import numpy as np
-from activations import sigmoid, relu, sigmoid_backward, relu_backward
+from .activations import sigmoid, relu, sigmoid_backward, relu_backward
 
 
 def linear_forward(A, W, b):
