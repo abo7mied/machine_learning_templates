@@ -1,21 +1,67 @@
+import numpy as np
+
 from initialization import initialize_parameters
 from layers import linear_activation_forward, linear_activation_backward
 from losses import compute_loss
+from optimizers import update_parameters
 
-def forward_propagation(X, parameters):
-    raise Exception("to be implemented")
+class MLP:
+    def __init__(self, n_x, n_h, n_y, activation="relu"):
+        self.parameters = initialize_parameters(n_x=n_x, n_h=n_h, n_y=n_y)
+        self.activation = activation
 
-def backward_propagation(AL, Y, caches):
-    raise Exception("to be implemented")
+    def forward_propagation(self, X):
+        W1 = self.parameters["W1"]
+        b1 = self.parameters["b1"]
+        W2 = self.parameters["W2"]
+        b2 = self.parameters["b2"]
 
-def train(X, Y, layer_dims, learning_rate, num_iterations):
-    raise Exception("to be implemented")
+        A1, cache1 = linear_activation_forward(X, W1, b1, activation=self.activation)
+        AL, cache2 = linear_activation_forward(A1, W2, b2, activation="sigmoid")
+        caches = (cache1, cache2)
 
-def predict(X, parameters):
-    raise Exception("to be implemented")
+        return AL, caches
 
-# usage
-input_dim = 16
-hidden_dim = 8
-output_dim = 1
-parameters = initialize_parameters(n_x=input_dim, n_h=hidden_dim, n_y=output_dim)
+    def backward_propagation(self, AL, Y, caches):
+        cache1, cache2 = caches
+        m = Y.shape[1]
+
+        dAL = -(np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+
+        dA1, dW2, db2 = linear_activation_backward(dAL, cache2, activation="sigmoid")
+        dA0, dW1, db1 = linear_activation_backward(dA1, cache1, activation=self.activation)
+
+        grads = {
+            "dW1": dW1,
+            "db1": db1,
+            "dW2": dW2,
+            "db2": db2,
+        }
+
+        return grads
+
+    def train(self, X, Y, lr=0.01, epochs=1000, loss_type="cross_entropy", print_loss=False):
+        for epoch in range(epochs):
+            AL, caches = self.forward_propagation(X)
+            loss = compute_loss(AL, Y, loss_type=loss_type)
+            grads = self.backward_propagation(AL, Y, caches)
+            self.parameters = update_parameters(self.parameters, grads, learning_rate=lr)
+
+            if print_loss and (epoch % 100 == 0 or epoch == epochs - 1):
+                print(f"Epoch {epoch + 1}/{epochs} - loss: {loss:.6f}")
+
+        return self.parameters
+
+    def predict(self, X):
+        AL, _ = self.forward_propagation(X)
+        predictions = (AL >= 0.5).astype(int)
+        return predictions
+
+
+if __name__ == "__main__":
+    input_dim = 16
+    hidden_dim = 8
+    output_dim = 1
+    mlp = MLP(n_x=input_dim, n_h=hidden_dim, n_y=output_dim, activation="relu")
+    parameters = mlp.parameters
+    print("Initialized parameters:", {k: v.shape for k, v in parameters.items()})
