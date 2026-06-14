@@ -1,3 +1,4 @@
+import random
 import numpy as np
 
 from .initialization import initialize_parameters
@@ -48,9 +49,10 @@ class MLP:
 
         losses = []
         for epoch in range(epochs):
-            permutation = np.random.permutation(m)
-            X_shuffled = X[:, permutation]
-            Y_shuffled = Y[:, permutation]
+            indices = list(range(m))
+            random.shuffle(indices)
+            X_shuffled = X[:, indices]
+            Y_shuffled = Y[:, indices]
 
             for i in range(0, m, batch_size):
                 end = min(i + batch_size, m)
