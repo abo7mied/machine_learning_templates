@@ -24,11 +24,16 @@ class MLP:
 
         return AL, caches
 
-    def backward_propagation(self, AL, Y, caches):
+    def backward_propagation(self, AL, Y, caches, loss_type="cross_entropy"):
         cache1, cache2 = caches
         m = Y.shape[1]
 
-        dAL = -(np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+        if loss_type == "cross_entropy":
+            dAL = -(np.divide(Y, AL) - np.divide(1-Y, 1-AL))
+        elif loss_type == "mse":
+            dAL = (2/m) * (AL-Y)
+        elif loss_type == "multiclass":
+            dAL = AL-Y
 
         dA1, dW2, db2 = linear_activation_backward(dAL, cache2, activation="sigmoid")
         dA0, dW1, db1 = linear_activation_backward(dA1, cache1, activation=self.activation)
@@ -60,7 +65,7 @@ class MLP:
                 Y_batch = Y_shuffled[:, i:end]
 
                 AL, caches = self.forward_propagation(X_batch)
-                grads = self.backward_propagation(AL, Y_batch, caches)
+                grads = self.backward_propagation(AL, Y_batch, caches, loss_type=loss_type)
                 self.parameters = update_parameters(self.parameters, grads, learning_rate=lr)
 
             AL_full, _ = self.forward_propagation(X)
