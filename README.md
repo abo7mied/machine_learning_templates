@@ -4,3 +4,5 @@ In this repositories, I code my implementations of ML/DL architectures and pipel
 1- MLP
 
 2- RNN
+
+IMPORTANT: MODIFIED RECENTLY WITHOUT DEBUGGING (AND IS BUGGY); DEBUG!
