@@ -4,7 +4,7 @@
 
 import numpy as np
 from .activations import sigmoid, relu, sigmoid_backward, relu_backward
-
+from .backend import get_array_module
 
 def linear_forward(A, W, b):
     """
@@ -21,7 +21,7 @@ def linear_forward(A, W, b):
     """
     
     ### START OF MY CODE
-    Z = np.matmul(W, A) + b
+    Z = W @ A + b
     ### END OF MY CODE ###
     
     assert(Z.shape == (W.shape[0], A.shape[1]))
@@ -81,9 +81,11 @@ def linear_backward(dZ, cache):
     m = A_prev.shape[1]
 
     ### START OF MY CODE ###
-    dA_prev = np.matmul(W.T, dZ)
-    dW= (1/m)*np.matmul(dZ, A_prev.T)
-    db= (1/m)*np.matmul(dZ, np.ones((m,1)))
+    xp = get_array_module(dZ)
+    
+    dA_prev = W.T @ dZ
+    dW= (1/m)* (dZ @ A_prev.T)
+    db= (1/m)* (dZ @ xp.ones((m,1)))
     ### END OF MY CODE ###
     
     assert (dA_prev.shape == A_prev.shape)
