@@ -5,10 +5,14 @@ from .initialization import initialize_parameters
 from .layers import linear_activation_forward, linear_activation_backward
 from .losses import compute_loss
 from .optimizers import update_parameters
+from .backend import get_backend
 
 class MLP:
-    def __init__(self, n_x, n_h, n_y, activation="relu"):
-        self.parameters = initialize_parameters(n_x=n_x, n_h=n_h, n_y=n_y)
+    def __init__(self, n_x, n_h, n_y, activation="relu", device="cpu"):
+        self.device = device
+        self.xp = get_backend(device)
+        
+        self.parameters = initialize_parameters(n_x=n_x, n_h=n_h, n_y=n_y, xp=self.xp)
         self.activation = activation
 
     # X has shape (n_x, m) where m is the number of examples
@@ -48,6 +52,9 @@ class MLP:
         return grads
 
     def train(self, X, Y, lr=0.01, epochs=1000, batch_size=None, loss_type="cross_entropy", print_loss=False):
+        X = self.xp.asarray(X)
+        Y = self.xp.asarray(Y)
+        
         m = X.shape[1]
         if batch_size is None:
             batch_size = m
