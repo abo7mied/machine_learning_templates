@@ -5,7 +5,7 @@ from .initialization import initialize_parameters
 from .layers import linear_activation_forward, linear_activation_backward
 from .losses import compute_loss
 from .optimizers import update_parameters
-from .backend import get_backend
+from .backend import get_backend, to_cpu
 
 class MLP:
     def __init__(self, n_x, n_h, n_y, activation="relu", device="cpu"):
@@ -17,6 +17,8 @@ class MLP:
 
     # X has shape (n_x, m) where m is the number of examples
     def forward_propagation(self, X):
+        X = self.xp.asarray(X)
+        
         W1 = self.parameters["W1"]
         b1 = self.parameters["b1"]
         W2 = self.parameters["W2"]
@@ -33,7 +35,7 @@ class MLP:
         m = Y.shape[1]
 
         if loss_type == "cross_entropy":
-            dAL = -(np.divide(Y, AL) - np.divide(1-Y, 1-AL))
+            dAL = -(Y / AL - (1 - Y) / (1 - AL))
         elif loss_type == "mse":
             dAL = (2/m) * (AL-Y)
         elif loss_type == "multiclass":
@@ -61,8 +63,7 @@ class MLP:
 
         losses = []
         for epoch in range(epochs):
-            indices = list(range(m))
-            random.shuffle(indices)
+            indices = self.xp.random.permutation(m)
             X_shuffled = X[:, indices]
             Y_shuffled = Y[:, indices]
 
@@ -77,6 +78,10 @@ class MLP:
 
             AL_full, _ = self.forward_propagation(X)
             loss = compute_loss(AL_full, Y, loss_type=loss_type)
+            if self.device == "gpu":
+                loss = float(self.xp.asnumpy(loss))
+            else:
+                loss = float(loss)
             losses.append(loss)
 
             if print_loss and (epoch % 100 == 0 or epoch == epochs - 1):
@@ -85,9 +90,10 @@ class MLP:
         return self.parameters, losses
 
     def predict(self, X):
+        X = self.xp.asarray(X)
         AL, _ = self.forward_propagation(X)
         predictions = (AL >= 0.5).astype(int)
-        return predictions
+        return to_cpu(predictions)
 
 
 if __name__ == "__main__":
