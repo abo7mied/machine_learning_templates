@@ -3,6 +3,7 @@
 # LINES INDICATING MY OWNERSHIP, ASSUME THE CODE IS MY INSTRUCTOR'S.
 
 import numpy as np
+from .backend import get_array_module
 
 def sigmoid(Z):
     """
@@ -16,7 +17,9 @@ def sigmoid(Z):
     cache -- returns Z, useful during backpropagation
     """
     ### START OF MY CODE ###
-    A = 1 / (1+np.exp(Z*(-1)))
+    xp = get_array_module(Z)
+    
+    A = 1/(1+xp.exp(Z*(-1)))
     cache = Z
     ### END OF MY CODE ###
     
@@ -35,7 +38,9 @@ def relu(Z):
     """
     
     ### START OF MY CODE ### 
-    A = np.maximum(0, Z)
+    xp = get_array_module(Z)
+    
+    A = xp.maximum(0, Z)
     cache = Z
     ### END OF MY CODE ###
     
@@ -55,9 +60,11 @@ def relu_backward(dA, cache):
     """
     
     Z = cache
-    dZ = np.array(dA, copy=True) # just converting dz to a correct object.
     
     ### START OF MY CODE ###
+    xp = get_array_module(dA)
+    dZ = xp.array(dA, copy=True) # just converting dz to a correct object.
+
     dZ[Z <= 0]=0
     ### END OF MY CODE ###
     
@@ -80,7 +87,8 @@ def sigmoid_backward(dA, cache):
     Z = cache
     
     ### START OF MY CODE ###
-    sig = 1 / (1+np.exp(Z*(-1)))
+    xp = get_array_module(Z)
+    sig = 1 / (1+xp.exp(Z*(-1)))
     dZ = sig * (1-sig) * dA
     ### END CODE HERE ###
     
