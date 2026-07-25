@@ -4,7 +4,7 @@
 
 import numpy as np
 
-def initialize_parameters(n_x, n_h, n_y, seed=None):
+def initialize_parameters(n_x, n_h, n_y, seed=None, xp=None):
     """
     Argument:
     n_x -- size of the input layer
@@ -18,14 +18,15 @@ def initialize_parameters(n_x, n_h, n_y, seed=None):
                     W2 -- weight matrix of shape (n_y, n_h)
                     b2 -- bias vector of shape (n_y, 1)
     """
-    if seed is not None:
-        np.random.seed(seed)
     
     ### START OF MY CODE
-    W1 = 0.01*np.random.randn(n_h, n_x)
-    b1 = np.zeros((n_h, 1))
-    W2 = 0.01*np.random.randn(n_y, n_h)
-    b2 = np.zeros((n_y, 1))
+    if xp is None:
+        xp = np
+        
+    W1 = 0.01*xp.random.randn(n_h, n_x)
+    b1 = xp.zeros((n_h, 1))
+    W2 = 0.01*xp.random.randn(n_y, n_h)
+    b2 = xp.zeros((n_y, 1))
     ### END OF MY CODE ###
     
     assert(W1.shape == (n_h, n_x))
