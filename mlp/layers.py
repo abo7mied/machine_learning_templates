@@ -58,6 +58,9 @@ def linear_activation_forward(A_prev, W, b, activation):
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = relu(Z)
         ### END OF MY CODE ###
+
+    else:
+        raise ValueError(f"unavailable activation: {activation}")
     
     assert (A.shape == (W.shape[0], A_prev.shape[1]))
     cache = (linear_cache, activation_cache)
@@ -121,5 +124,8 @@ def linear_activation_backward(dA, cache, activation):
         dZ = sigmoid_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
         ### END OF MY CODE ###
-    
+
+    else:
+        raise ValueError(f"unavailable activation: {activation}")
+        
     return dA_prev, dW, db
